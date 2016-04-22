@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -18,7 +18,7 @@ public class Manga {
 	
 	public static void main(String[] args) throws IOException {
 		
-			//Using a dialog asking for the URL 
+			//Pedimos la URL mediante un dialog
 			JFrame frame = new JFrame("MangaPandaDownloader");
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			String url;		
@@ -42,54 +42,56 @@ public class Manga {
 			
 			for (int i = nImagen; ; i++) {
 			
-			//Open the connection
+			//Abrimos la conexión
 			URL nUrl = null;
-			URLConnection open;
+			HttpURLConnection open;
 			
 			String cUrl = url + String.valueOf(i);
 			System.out.println("La URL es " + cUrl);
 						
-			//We want to handle 404 errors and malformed URLs
+			//Para detectar errores en la URL y 404's
 			try {
 				nUrl = new URL(cUrl);
 				
 			} catch(MalformedURLException e){
-				System.out.println("La URL es inválida");
+				System.out.println("Eres tonto y no sabes copiar una URL");
 				System.exit(1);
 			}
 			
 			nUrl = new URL(cUrl);
 			
-			open = nUrl.openConnection();
+			open = (HttpURLConnection) nUrl.openConnection();
+			open.setRequestMethod("GET");
+			open.setReadTimeout(15*1000);
 			open.connect();
 			
 			//404 handler
 			try {
-				InputStream s = open.getInputStream();
+				open.getInputStream();
 			} catch (IOException e) {
 				System.out.println("La página web no existe");
 				System.exit(1);			
 			}
 			
-			InputStream s = open.getInputStream();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(s));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(open.getInputStream()));
+			StringBuilder stringBuilder = new StringBuilder();
 			String line = "";
 			
-			while((bufferedReader.readLine())!=null) {
-				line += bufferedReader.readLine();
+			while((line = reader.readLine())!=null) {
+				stringBuilder.append(line + "\n");
 			}
 			
 			//Catch image's url
-			int begin = line.indexOf("<img");
-			int end = line.lastIndexOf("name=\"img\" />");
-			String imagen = line.substring(begin, end);
+			int begin = stringBuilder.indexOf("<img id");
+		    	int end = stringBuilder.lastIndexOf("name=\"img\"");
+			String imagen = stringBuilder.substring(begin, end);
 			
 			begin = imagen.indexOf("http");
 			end = imagen.lastIndexOf("\" alt");
 			imagen = imagen.substring(begin, end);
 			
-			//Download the image
-			String folder = "D:/";
+			//Vamos a guardar la imagen
+			String folder = "D:/Berserk";
 			String name = cUrl.substring(cUrl.lastIndexOf("/") + 1, cUrl.length());
 			name += ".jpg";
 			
@@ -104,11 +106,11 @@ public class Manga {
 			}
 			System.out.println("llego aquí");
 			
-			//Reopen the connection, now with the image's URL
+			//Volvemos a abrir conexión con la URL de la imagen	
 			System.out.println("Se descargará " + imagen );
 			
 			nUrl = new URL(imagen);
-			open = nUrl.openConnection();
+			open = (HttpURLConnection) nUrl.openConnection();
 			open.setRequestProperty("User-Agent", 
 							"Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB;" 
 							+ "rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)");
@@ -129,7 +131,6 @@ public class Manga {
 			
 			System.out.println("Descargado");
 			
-			s.close();
 			in.close();
 			out.close();
 			
