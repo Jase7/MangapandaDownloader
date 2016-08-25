@@ -20,3 +20,7 @@ Or you can also use the constructor of URL class:
 URL website = new URL("http", proxy, Integer.parseInt(proxyPort), websiteUrl);
 
 Hope it will help!
+
+
+*Fork update:
+Now it supports multi-link download.

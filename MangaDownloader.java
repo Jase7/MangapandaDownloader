@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.TextArea;
-import java.awt.TextField;
 import java.io.IOException;
 
 
@@ -23,7 +22,7 @@ class Interfaz {
 	
 	Frame frame; 
 	Panel panel;
-	TextField urlInput;
+	TextArea urlInput;
 	TextArea console;
 	Button accept;
 	Button folder;
@@ -36,7 +35,7 @@ class Interfaz {
 		this.accept = new Button("Descargar");
 		this.folder = new Button("Seleccionar carpeta");
 		this.panel = new Panel();
-		this.urlInput = new TextField();
+		this.urlInput = new TextArea();
 		this.console = new TextArea("Consola de descargas:\n");
 		this.info = new Label("Introduce la url");
 		
